@@ -16,7 +16,7 @@ const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const db = admin.initializeApp().firestore();
 
-// Recalculates the total cost of a cart; triggered when there's a change
+// Recalculates the total cost of a cart; triggered when there's a change. (onWrite) is a listener
 // to any items in a cart.
 exports.calculateCart = functions
     .firestore.document("carts/{cartId}/items/{itemId}")
@@ -27,16 +27,31 @@ exports.calculateCart = functions
         return;
       }
 
-      let totalPrice = 125.98;
-      let itemCount = 8;
+      let totalPrice = 0;
+      let itemCount = 0;
       try {
-
         const cartRef = db.collection("carts").doc(context.params.cartId);
+        const itemsSnap = await cartRef.collection("items").get();
+
+        itemsSnap.docs.forEach(item => {
+          const itemData = item.data();
+          if (itemData.price) {
+            // If not specified, the quantity is 1
+            const quantity = (itemData.quantity) ? itemData.quantity : 1;
+            itemCount += quantity;
+            totalPrice += (itemData.price * quantity);
+          }
+        });
 
         await cartRef.update({
           totalPrice,
           itemCount
         });
+
+        // OPTIONAL LOGGING HERE
+        console.log("Cart total successfully recalculated: ", totalPrice);
       } catch(err) {
+        // OPTIONAL LOGGING HERE
+        console.warn("update error", err);
       }
     });

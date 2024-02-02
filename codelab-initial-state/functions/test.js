@@ -17,7 +17,7 @@ const path = require("path");
 const TEST_FIREBASE_PROJECT_ID = "test-firestore-rules-project";
 
 // TODO: Change this to your real Firebase Project ID
-const REAL_FIREBASE_PROJECT_ID = "changeme";
+const REAL_FIREBASE_PROJECT_ID = "fir-lab-f8c39";
 
 const firebase = require("@firebase/rules-unit-testing");
 
@@ -75,6 +75,7 @@ describe("shopping carts", () => {
     auth: bobAuth
   }).firestore();
 
+  //admin can set either Alice's or Bob's cart to be administered by them respectively
   const admin = firebase.initializeAdminApp({
     projectId: TEST_FIREBASE_PROJECT_ID
   }).firestore();
@@ -179,7 +180,9 @@ describe("shopping cart items", async () => {
   });
 });
 
-describe.skip("adding an item to the cart recalculates the cart total. ", () => {
+
+//cloud functions testing with multiple emulators
+describe("adding an item to the cart recalculates the cart total. ", () => {
   const admin = firebase.initializeAdminApp({ 
     projectId: REAL_FIREBASE_PROJECT_ID 
   }).firestore();
